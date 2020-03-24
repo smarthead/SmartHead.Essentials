@@ -23,5 +23,5 @@ jobs:
       if: github.event.action == 'published'
 
     - name: Push package to nuget.
-      run: dotnet nuget push **/SmartHead.Essentials.*.nupkg --source "github"
+      run: dotnet nuget push **/SmartHead.Essentials.*.nupkg
       if: github.event.action == 'published'
