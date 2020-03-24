@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>SmartHead.Essentials.Abstractions</AssemblyName>
+    <IsPackable>true</IsPackable>
+    <Authors>Rustam Asylgareev</Authors>
+    <PackageProjectUrl>https://github.com/neonbones/SmartHead.Essentials</PackageProjectUrl>
+    <Version>0.0.1</Version>
+    <Company>SmartHead</Company>
+    <IsTestProject>false</IsTestProject>
+    <Description>SmartHead.Essentials.Abstractions</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>

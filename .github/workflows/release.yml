@@ -1,0 +1,21 @@
+name: release
+
+on: [release]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Environment.
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.1'
+    - name: Build package for Release.
+      run: |
+        cd src/
+        dotnet pack -c Release
+      if: github.event.action == 'published'
+    - name: Push package to nuget.
+      run: dotnet nuget push **/SmartHead.Essentials.*.nupkg -s https://www.nuget.org/api/v2/package
+      if: github.event.action == 'published'
