@@ -21,6 +21,6 @@ jobs:
 
     - name: Push package to nuget.
       env:
-        NUGET_KEY: ${{ secrets.NUGET_KEY }}
+        NUGET_KEY: ${{ secrets.ASYLGAREEVR_NUGET_KEY }}
       run: dotnet nuget push **/SmartHead.Essentials.*.nupkg -k $NUGET_KEY -s https://www.nuget.org/api/v2/package
       if: github.event.action == 'published'
