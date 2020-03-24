@@ -6,7 +6,7 @@
     <IsPackable>true</IsPackable>
     <Authors>Rustam Asylgareev</Authors>
     <PackageProjectUrl>https://github.com/neonbones/SmartHead.Essentials</PackageProjectUrl>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Company>SmartHead</Company>
     <IsTestProject>false</IsTestProject>
     <Description>SmartHead.Essentials.Abstractions</Description>
