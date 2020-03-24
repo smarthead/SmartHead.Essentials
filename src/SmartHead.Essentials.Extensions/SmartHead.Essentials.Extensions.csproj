@@ -5,7 +5,7 @@
     <AssemblyName>SmartHead.Essentials.Extensions</AssemblyName>
     <IsPackable>true</IsPackable>
     <Authors>Rustam Asylgareev</Authors>
-    <PackageProjectUrl>https://github.com/neonbones/SmartHead.Essentials</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/smarthead-dev/SmartHead.Essentials</PackageProjectUrl>
     <Version>0.0.1</Version>
     <Company>SmartHead</Company>
     <IsTestProject>false</IsTestProject>
