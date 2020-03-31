@@ -16,4 +16,8 @@
     <PackageReference Include="MediatR" Version="8.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SmartHead.Essentials.Extensions\SmartHead.Essentials.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>
