@@ -27,5 +27,8 @@ namespace SmartHead.Essentials.Application.Controller
         [NonAction]
         public CreatedAtRouteResult CreatedAt(object routeValues, object content, string debugData = null)
             => new CreatedAtRouteResult(routeValues, new SuccessApiResponse(content, debugData));
+        [NonAction]
+        public UnauthorizedObjectResult Unauthorized(string error = null)
+            => new UnauthorizedObjectResult(new ErrorApiResponse("Unauthorized", error));
     }
 }
