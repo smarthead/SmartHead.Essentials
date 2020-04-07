@@ -1,6 +1,6 @@
 ﻿namespace SmartHead.Essentials.Abstractions.Ddd.Interfaces
 {
-    public interface IEntity
+    public interface IEntity 
     {
         long Id { get; }
     }

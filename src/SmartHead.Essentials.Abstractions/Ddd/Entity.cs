@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using Force.Ddd;
 using SmartHead.Essentials.Abstractions.Ddd.Interfaces;
 
 namespace SmartHead.Essentials.Abstractions.Ddd
 {
-    public abstract class Entity : IEntity
+    public abstract class Entity : IHasId<long>, IEntity
     {
         public long Id { get; protected set; }
+        object IHasId.Id => Id;
 
         public override bool Equals(object obj)
         {
@@ -35,7 +37,7 @@ namespace SmartHead.Essentials.Abstractions.Ddd
         {
             if (EqualityComparer<long>.Default.Equals(Id, default))
                 return true;
-            
+
             return Convert.ToInt64(Id) <= 0;
         }
     }

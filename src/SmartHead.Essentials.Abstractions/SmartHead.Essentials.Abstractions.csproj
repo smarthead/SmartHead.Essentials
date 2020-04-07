@@ -6,13 +6,14 @@
     <IsPackable>true</IsPackable>
     <Authors>Rustam Asylgareev</Authors>
     <PackageProjectUrl>https://github.com/smarthead-dev/SmartHead.Essentials</PackageProjectUrl>
-    <Version>0.0.3</Version>
+    <Version>0.0.4</Version>
     <Company>SmartHead</Company>
     <IsTestProject>false</IsTestProject>
     <Description>SmartHead.Essentials.Abstractions</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Force" Version="1.0.0" />
     <PackageReference Include="MediatR" Version="8.0.1" />
   </ItemGroup>
 
