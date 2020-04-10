@@ -123,8 +123,7 @@ public class ProductsController : FormattedApiControllerBase
 InMemoryBus.cs
 
 ```C#
-await Mediator.Publish(@event, ct);
- public virtual async Task RaiseEventAsync<T>(T @event, CancellationToken ct = default) 
+public virtual async Task RaiseEventAsync<T>(T @event, CancellationToken ct = default) 
     where T : Event
 {
     if (!@event.MessageType.Equals("DomainNotification"))
