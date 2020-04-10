@@ -295,16 +295,16 @@ public abstract class ApiControllerBase : FormattedApiControllerBase
 /// </summary>
 [HttpGet]
 [SwaggerResponse(200, SwaggerResponseMessages.Ok + " Возвращается список продуктов.",
-    typeof(SwaggerSuccessApiResponse<PagedResponse<DeviceItemModel>>))]
+    typeof(SwaggerSuccessApiResponse<PagedResponse<ProductItemModel>>))]
 public IActionResult Get([FromQuery] PagingQueryModel query)
 {
-    var devices = _context
+    var products = _context
         .Set<Domain.Entities.Products>()
         .OrderByDescending(x => x.Rating)
         .ProjectTo<ProductItemModel>(_mapper.ConfigurationProvider)
         .Paginate(query.Page, query.Size);
 
-    return Ok(devices);
+    return Ok(products);
 }
 ```
 
