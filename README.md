@@ -3,7 +3,8 @@
 
 ## SmartHead.Essentials.Abstractions
 Содержит в себе базовые классы, которые необходимы при разработке по DDD + CQRS + Event Sourcing (immediate consistency). Библиотека совместима со спецификациями из open source библиотеки Force (https://github.com/hightechgroup/force). Имеет прямые зависимости к Entity Framework.
-- DDD классы: Entity, ValueObject. Реализованы по принципу "is a", а не "can do".
+### DDD: Entity, ValueObject. 
+Реализованы по принципу "is a", а не "can do".
 
 Использование: 
 ```C#
@@ -13,15 +14,17 @@ public class Animal : Entity
 public class Address : ValueObject
 ```
 
-- CQRS + Event Sourcing реализованы с помощью библиотеки MediatR.
-Классы: 
+### CQRS + Event Sourcing 
+Реализованы с помощью библиотеки MediatR.
+
+
 ```C#
 public class AddProductCommand : Command
 ```
+
 ```C#
 public class ProductAddedEvent : Event
 ```
-Использование: 
 
 Startup.cs
 
