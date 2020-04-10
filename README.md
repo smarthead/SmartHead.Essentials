@@ -88,7 +88,7 @@ if (!IsValidOperation())
 return Ok();
 ```
 
-## Архитектурные подходы
+# SmartHead.Essentials.Abstractions
 - InMemoryBus - глобальная шина для функционирования MediatR. Настроен на сохранение всех наследников `Event` в `EventStore`, кроме `DomainNotification`.
 
 Startup.cs
