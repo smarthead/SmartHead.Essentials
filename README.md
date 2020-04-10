@@ -128,10 +128,10 @@ await Mediator.Publish(@event, ct);
     where T : Event
 {
     if (!@event.MessageType.Equals("DomainNotification"))
-        // Записываем наследников Event
+        // Записываем наследников Event и с типом не DomainNotification.
         await EventStore.SaveAsync(@event, ct);
         
-    // Паблишим DomainNotification
+    // Паблишим ивенты. Они будут доступны при реализации INotificationHandler<T>, где T = Event
     await Mediator.Publish(@event, ct);
 }
 ```
