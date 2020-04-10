@@ -1,7 +1,7 @@
 # SmartHead.Essentials
 Нугет пакет с типовыми решениями для ускорения разработки. 
 
-# SmartHead.Essentials.Abstractions
+## SmartHead.Essentials.Abstractions
 Содержит в себе базовые классы, которые необходимы при разработке по DDD + CQRS + Event Sourcing (immediate consistency). Библиотека совместима со спецификациями из open source библиотеки Force (https://github.com/hightechgroup/force). Имеет прямые зависимости к Entity Framework.
 - DDD классы: Entity, ValueObject. Реализованы по принципу "is a", а не "can do".
 
@@ -88,8 +88,9 @@ if (!IsValidOperation())
 return Ok();
 ```
 
-# SmartHead.Essentials.Abstractions
-- InMemoryBus - глобальная шина для функционирования MediatR. Настроен на сохранение всех наследников `Event` в `EventStore`, кроме `DomainNotification`.
+## SmartHead.Essentials.Implementation
+### InMemoryBus 
+Глобальная шина для функционирования MediatR. Настроен на сохранение всех наследников `Event` в `EventStore`, кроме `DomainNotification`.
 
 Startup.cs
 
@@ -116,7 +117,8 @@ public class ProductsController : FormattedApiControllerBase
       await _mediator.SendCommandAsync(command);
 ```
 
-- DomainNotificationHandler - проброс доменных ошибок.
+### DomainNotificationHandler 
+Обработчик доменных ошибок.
 
 Startup.cs
 
@@ -169,7 +171,8 @@ public abstract class ApiControllerBase : FormattedApiControllerBase
 }
 ```
 
-- EventStore - шина для обработки наследников `Event`, для последующиего сохранения в базу. Содержит в себе аггрегат, тип, время, и тело события в сериализованном виде. Используется в InMemoryBus.
+### EventStore
+Шина для обработки наследников `Event`, для последующиего сохранения в базу. Содержит в себе аггрегат, тип, время, и тело события в сериализованном виде. Используется в InMemoryBus.
 
 Startup.cs
 
@@ -197,6 +200,8 @@ public class InMemoryBus : IMediatorHandler
     }
 ```
 
-- CommandHandlerBase - базовый класс обработчика команд, который содержит в себе базвоые зависимости, необходимые для обработки доменных ошибок и взаимодействия с базой данных. Реализованные методы `Commit()` и `CommitAsync()` не позволят записать в базу, если найдутся доменные ошибки. Также умеют выбрасывать свои ошибки при наличии исключений во время записи, которые можно в будущем аггрегировать и доставить в тело Bad Request итд. 
+### CommandHandlerBase 
+Базовый класс обработчика команд, который содержит в себе базвоые зависимости, необходимые для обработки доменных ошибок и взаимодействия с базой данных. Реализованные методы `Commit()` и `CommitAsync()` не позволят записать в базу, если найдутся доменные ошибки. Также умеют выбрасывать свои ошибки при наличии исключений во время записи, которые можно в будущем аггрегировать и доставить в тело Bad Request итд. 
 
-- UnitOfWork - класс, реализующий паттерн Unit Of Work. Реализованы виртуальные методы `Commit()` и `CommitAsync()` с логикой орбаботки интерфейсов `IHasCreationTime` и `IHasModificationTime`. При необходимости можно добавить свою реализацию, наследовавшись от класса и перезаписать методы `Commit()`, `CommitAsync()`. 
+### UnitOfWork 
+Класс, реализующий паттерн Unit Of Work. Реализованы виртуальные методы `Commit()` и `CommitAsync()` с логикой орбаботки интерфейсов `IHasCreationTime` и `IHasModificationTime`. При необходимости можно добавить свою реализацию, наследовавшись от класса и перезаписать методы `Commit()`, `CommitAsync()`. 
