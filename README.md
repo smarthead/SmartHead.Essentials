@@ -145,7 +145,7 @@ public async Task<bool> Handle(ProductAddCommand command, CancellationToken ct)
     if (!isValidOperation)
     {
         await Mediator.RaiseEventAsync(
-            new DomainNotification(nameof(DomainNotification), Resources.NotValidOperation), ct);
+            new DomainNotification(nameof(DomainNotification), Resources.InvalidOperation), ct);
         return false;
     }
 ```
@@ -208,3 +208,176 @@ public class InMemoryBus : IMediatorHandler
 
 ### UnitOfWork 
 Класс, реализующий паттерн Unit Of Work. Реализованы виртуальные методы `Commit()` и `CommitAsync()` с логикой орбаботки интерфейсов `IHasCreationTime` и `IHasModificationTime`. При необходимости можно добавить свою реализацию, наследовавшись от класса и перезаписать методы `Commit()`, `CommitAsync()`. 
+
+## SmartHead.Essentials.Application
+Набор инструментов, ускоряющих разработку `Application` слоя приложения. 
+### Атрибуты
+Набор атрибутов для работы с файлами в REST Api.
+- AllowedExtensionsAttribute 
+- MaxFileSize
+- HasValidFileName
+
+Пример.
+
+```C#
+[HasValidFileName]
+[MaxFileSize(500 * 1024 * 1024)] // 500 mb
+[AllowedExtensions(new[] {".jpg", ".png", ".mp4", ".jpeg"})]
+public IFormFile File { get; set; }
+```
+
+- DevelopmentOnly
+
+Атрибут, который позволяет выключать метод в не Development окружении. Пример.
+
+```C#
+[HttpDelete]
+[DevelopmentOnly]
+[ApiExplorerSettings(IgnoreApi = true)]
+public async Task<IActionResult> Delete([FromQuery] DeleteRequest request)
+```
+
+### Response Formatter
+Инструмент, необходимый для форматирования ответа приложения и приведения ответа в единую стилистику.
+
+Положительный формат ответа: 
+
+```JSON
+{
+  "content": {
+   "key": "value"
+  },
+  "debugData": "string"
+}
+```
+
+Отрицательный формат ответа:
+
+```JSON
+{
+  "subStatus": "string",
+  "errorContent": [
+    "string"
+  ],
+  "debugData": "string"
+}
+```
+
+Регистрация. 
+
+Startup.cs
+
+```C#
+services
+    .AddControllers()
+    .SetCompatibilityVersion(CompatibilityVersion.Latest)
+    .AddResponseOutputFormatter();
+
+services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory =
+        actionContext =>
+            InvalidModelStateResponseFactory.CreateFrom(Resources.InvalidModel, actionContext.ModelState);
+});
+```
+
+ApiControllerBase.cs
+
+```C#
+public abstract class ApiControllerBase : FormattedApiControllerBase
+{
+```
+### Пагинация
+Использование.
+```C#
+/// <summary>
+///     Вывод списка продуктов.
+/// </summary>
+[HttpGet]
+[SwaggerResponse(200, SwaggerResponseMessages.Ok + " Возвращается список продуктов.",
+    typeof(SwaggerSuccessApiResponse<PagedResponse<DeviceItemModel>>))]
+public IActionResult Get([FromQuery] PagingQueryModel query)
+{
+    var devices = _context
+        .Set<Domain.Entities.Products>()
+        .OrderByDescending(x => x.Rating)
+        .ProjectTo<ProductItemModel>(_mapper.ConfigurationProvider)
+        .Paginate(query.Page, query.Size);
+
+    return Ok(devices);
+}
+```
+
+Ответ.
+
+```JSON
+{
+    "pagination": {
+      "itemsTotal": 0,
+      "page": 0,
+      "total": 0,
+      "size": 0,
+      "hasPrevious": true,
+      "hasNext": true
+    },
+    "items": [
+      {
+        "id": 0,
+        "name": "string",
+        "price": 0,
+        "rating": 0
+      }
+    ]
+}
+```
+
+### Swagger Response
+Упрощение разработки swagger документации. Автоматически дополняет ответ ошибкой 500, а также 401 и 403 если метод покрыт авторизацией. Для упрощения документирования различных ответов присутствует набор шаблонных сообщений `SwaggerResponseMessages`. `SwaggerErrorApiResponse` и `SwaggerSuccessApiResponse` добавлены для построения тел ответов на swagger странице при использовании в связке с Response Formatter.
+
+Регистрация.
+```C#
+services.AddSwaggerGen(options =>
+    {
+        // Ваш конфиг
+        options.OperationFilter<ResponseOperationFilter>();
+    }
+);
+```
+
+Использование. 500, 403, 401 ошибки добавились автоматически.
+
+```C#
+/// <summary>
+///     Удаление продукта.
+/// </summary>
+[HttpDelete("{id}")]
+[Authorize]
+[SwaggerResponse(204, SwaggerResponseMessages.NoContent, typeof(void))]
+[SwaggerResponse(400, SwaggerResponseMessages.BadRequest, typeof(SwaggerErrorApiResponse<IEnumerable<string>>))]
+public async Task<IActionResult> Delete(long id)
+```
+### Seed
+Методы для инициализации данных в БД.
+- MigrationsInitializer - используется для автомиграции при старте.
+- DataInitializerBase - базовый метод для инициализации данных в базу. Имеет фабричный метод InitializeAsync, который необходимо реализовать.
+
+Использование.
+
+Program.cs
+```C#
+public static async Task Main(string[] args)
+{
+    var host = CreateHostBuilder(args).Build();
+    await host.InitAsync();
+    await host.RunAsync();
+}
+```
+
+Startup.cs
+```C#
+services.AddAsyncInitializer<MigrationsInitializer>();
+services.AddAsyncInitializer<AdminsInitializer>();
+```
+
+#### Примечение
+Сперва советуется запускать MigrationsInitializer, так как сначала должна инициализироваться актуальная схема, а потом уже все остальное.
