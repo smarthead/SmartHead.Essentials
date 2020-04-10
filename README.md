@@ -120,8 +120,24 @@ public class ProductsController : FormattedApiControllerBase
       await _mediator.SendCommandAsync(command);
 ```
 
+InMemoryBus.cs
+
+```C#
+await Mediator.Publish(@event, ct);
+ public virtual async Task RaiseEventAsync<T>(T @event, CancellationToken ct = default) 
+    where T : Event
+{
+    if (!@event.MessageType.Equals("DomainNotification"))
+        // Записываем наследников Event
+        await EventStore.SaveAsync(@event, ct);
+        
+    // Паблишим DomainNotification
+    await Mediator.Publish(@event, ct);
+}
+```
+
 ### DomainNotificationHandler 
-Обработчик доменных ошибок.
+Обработчик, с помощью которого построена архитектура обработки ошибок через INotification библиотеки MediatR.
 
 Startup.cs
 
@@ -146,6 +162,9 @@ public async Task<bool> Handle(ProductAddCommand command, CancellationToken ct)
     {
         await Mediator.RaiseEventAsync(
             new DomainNotification(nameof(DomainNotification), Resources.InvalidOperation), ct);
+            
+        // Ошибка типа DomainNotification попала в InMemoryBus и сохранилась в памяти. 
+        // Теперь она доступна через DomainNotificationHandler для дальнейшей обработки.
         return false;
     }
 ```
