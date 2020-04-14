@@ -93,7 +93,22 @@ return Ok();
 
 ## SmartHead.Essentials.Implementation
 ### InMemoryBus 
-Глобальная шина для функционирования MediatR. Настроен на сохранение всех наследников `Event` в `EventStore`, кроме `DomainNotification`.
+Глобальная шина для функционирования MediatR. Настроена на сохранение всех наследников `Event` в `EventStore`, кроме `DomainNotification`, который предназначен для хранения ошибок во время выполнения бизнес логики.
+
+InMemoryBus.cs
+
+```C#
+public virtual async Task RaiseEventAsync<T>(T @event, CancellationToken ct = default) 
+    where T : Event
+{
+    if (!@event.MessageType.Equals("DomainNotification"))
+        // Записываем наследников Event и с типом не DomainNotification.
+        await EventStore.SaveAsync(@event, ct);
+        
+    // Паблишим ивенты. Они будут доступны при реализации INotificationHandler<T>, где T = Event
+    await Mediator.Publish(@event, ct);
+}
+```
 
 Startup.cs
 
@@ -118,21 +133,6 @@ public class ProductsController : FormattedApiControllerBase
     {
       ...
       await _mediator.SendCommandAsync(command);
-```
-
-InMemoryBus.cs
-
-```C#
-public virtual async Task RaiseEventAsync<T>(T @event, CancellationToken ct = default) 
-    where T : Event
-{
-    if (!@event.MessageType.Equals("DomainNotification"))
-        // Записываем наследников Event и с типом не DomainNotification.
-        await EventStore.SaveAsync(@event, ct);
-        
-    // Паблишим ивенты. Они будут доступны при реализации INotificationHandler<T>, где T = Event
-    await Mediator.Publish(@event, ct);
-}
 ```
 
 ### DomainNotificationHandler 
@@ -193,7 +193,7 @@ public abstract class ApiControllerBase : FormattedApiControllerBase
 ```
 
 ### EventStore
-Шина для обработки наследников `Event`, для последующиего сохранения в базу. Содержит в себе аггрегат, тип, время, и тело события в сериализованном виде. Используется в InMemoryBus.
+Репозиторий для обработки наследников `Event`, для последующиего сохранения в базу. Содержит в себе аггрегат, тип, время, и тело события в сериализованном виде. Служит для хранения историчности аггрегата. Используется в InMemoryBus как `await EventStore.SaveAsync(@event, ct)`.
 
 Startup.cs
 
@@ -222,10 +222,10 @@ public class InMemoryBus : IMediatorHandler
 ```
 
 ### CommandHandlerBase 
-Базовый класс обработчика команд, который содержит в себе базовые зависимости, необходимые для обработки доменных ошибок и взаимодействия с базой данных. Реализованные методы `Commit()` и `CommitAsync()` не позволят записать в базу, если найдутся доменные ошибки. Также умеют выбрасывать свои ошибки при наличии исключений во время записи, которые можно в будущем аггрегировать и доставить в тело Bad Request итд. Содержит зависимости `IMediatorHandler`, `DomainNotificationHandler`, `IUnitOfWork`.
+Базовый класс обработчика команд, который содержит в себе базовые зависимости, необходимые для обработки доменных ошибок и взаимодействия с базой данных. Реализованные методы `Commit()` и `CommitAsync()` не позволят записать в базу, если найдутся доменные ошибки. Также умеют выбрасывать свои ошибки при наличии исключений во время записи в базу, которые можно в будущем аггрегировать и завернуть в тело Bad Request итд. Содержит зависимости `IMediatorHandler`, `DomainNotificationHandler`, `IUnitOfWork`.
 
 ### UnitOfWork 
-Класс, реализующий паттерн Unit Of Work. Реализованы виртуальные методы `Commit()` и `CommitAsync()` с логикой орбаботки интерфейсов `IHasCreationTime` и `IHasModificationTime`. При необходимости можно добавить свою реализацию, наследовавшись от класса и перезаписать методы `Commit()`, `CommitAsync()`. 
+Класс, реализующий паттерн Unit Of Work, предлагает единую точку коммита транзакции в базу данных. Реализованы виртуальные методы `Commit()` и `CommitAsync()` с логикой орбаботки интерфейсов `IHasCreationTime` и `IHasModificationTime`. При необходимости можно добавить свою реализацию, наследовавшись от класса и перезаписать методы `Commit()`, `CommitAsync()`. 
 
 ## SmartHead.Essentials.Application
 Набор инструментов, ускоряющих разработку `Application` слоя приложения. 
@@ -281,7 +281,7 @@ public async Task<IActionResult> Delete([FromQuery] DeleteRequest request)
 }
 ```
 
-Регистрация. 
+Необходимо зарегистрировать следующим образом. 
 
 Startup.cs
 
@@ -350,7 +350,7 @@ public IActionResult Get([FromQuery] PagingQueryModel query)
 ```
 
 ### Swagger Response
-Упрощение разработки swagger документации. Автоматически дополняет ответ ошибкой 500, а также 401 и 403 если метод покрыт авторизацией. Для упрощения документирования различных ответов присутствует набор шаблонных сообщений `SwaggerResponseMessages`. `SwaggerErrorApiResponse` и `SwaggerSuccessApiResponse` добавлены для построения тел ответов на swagger странице при использовании в связке с Response Formatter.
+Упрощение разработки swagger документации. Автоматически дополняет ответ ошибкой 500, а также 401 и 403 если метод покрыт авторизацией. Для упрощения документирования различных ответов присутствует набор шаблонных сообщений `SwaggerResponseMessages`. Как референс для текстов ошибок использовалась официальная документация Mozilla. `SwaggerErrorApiResponse` и `SwaggerSuccessApiResponse` добавлены для построения тел ответов на swagger странице при использовании в связке с Response Formatter.
 
 Регистрация.
 ```C#
