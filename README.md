@@ -1,5 +1,5 @@
 # SmartHead.Essentials
-Нугет пакет с типовыми решениями для ускорения разработки. 
+NuGet пакет с типовыми решениями для ускорения разработки. 
 
 ## SmartHead.Essentials.Abstractions
 Содержит в себе базовые классы, которые необходимы при разработке по DDD + CQRS + Event Sourcing (immediate consistency). Библиотека совместима со спецификациями из open source библиотеки Force (https://github.com/hightechgroup/force). Имеет прямые зависимости к Entity Framework.
