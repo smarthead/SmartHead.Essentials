@@ -63,10 +63,10 @@ namespace SmartHead.Essentials.Application.Swagger
             }
         }
 
-        private OpenApiResponse CreateOpenApiResponse(OperationFilterContext context, SwaggerResponseAttribute response, ApiResponseType apiResponseType) 
+        private OpenApiResponse CreateOpenApiResponse(OperationFilterContext context, ReturnsAttribute response, ApiResponseType apiResponseType) 
             => new OpenApiResponse()
             {
-                Description = Description.GetValue(response.Description),
+                Description = Description.GetValue(response.SubStatus) ?? response.Description ?? response.SubStatus,
                 Content = apiResponseType
                     ?.ApiResponseFormats
                     .ToDictionary(x => x.MediaType,
