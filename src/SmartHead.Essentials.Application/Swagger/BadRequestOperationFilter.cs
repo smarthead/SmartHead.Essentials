@@ -1,13 +1,11 @@
 using System;
 using System.Linq;
 using System.Net;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.OpenApi.Models;
 using SmartHead.Essentials.Application.Controller;
 using SmartHead.Essentials.Application.Swagger.Attributes;
-using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace SmartHead.Essentials.Application.Swagger
@@ -17,8 +15,7 @@ namespace SmartHead.Essentials.Application.Swagger
     {
         private IDescriptionProvider _descriptionProvider = null;
 
-        public IDescriptionProvider Description =>
-            _descriptionProvider ??= Activator.CreateInstance<T>();
+        public IDescriptionProvider Description => GetDescriptionProvider();
             
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
@@ -66,7 +63,7 @@ namespace SmartHead.Essentials.Application.Swagger
         private OpenApiResponse CreateOpenApiResponse(OperationFilterContext context, ReturnsAttribute response, ApiResponseType apiResponseType) 
             => new OpenApiResponse()
             {
-                Description = Description.GetValue(response.SubStatus) ?? response.Description ?? response.SubStatus,
+                Description = $"{response.SubStatus}<br/><br/>{Description?.GetValue(response.SubStatus) ?? response.Description}",
                 Content = apiResponseType
                     ?.ApiResponseFormats
                     .ToDictionary(x => x.MediaType,
@@ -78,5 +75,21 @@ namespace SmartHead.Essentials.Application.Swagger
             {
                 Schema = context.SchemaGenerator.GenerateSchema(modelMetadata.ModelType, context.SchemaRepository)
             };
+
+        private IDescriptionProvider GetDescriptionProvider()
+        {
+            try
+            {
+                return _descriptionProvider ??= Activator.CreateInstance<T>();
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+    }
+
+    public class BadRequestOperationFilter: BadRequestOperationFilter<DummyDescriptionProvider>
+    {
     }
 }
