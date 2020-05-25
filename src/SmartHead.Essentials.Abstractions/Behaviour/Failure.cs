@@ -15,11 +15,7 @@ namespace SmartHead.Essentials.Abstractions.Behaviour
             }
 
             Message = string.Join(Environment.NewLine, failures.Select(x => x.Message));
-            var data = new List<object>();
-
-            data.AddRange(failures.Select(x => x.Data));
-
-            Data = data.AsReadOnly();
+            Data = failures.Select(x => x.Data).ToList().AsReadOnly();
         }
 
         public Failure(string message)
