@@ -1,8 +1,8 @@
 ﻿namespace SmartHead.Essentials.Application.Pagination
 {
-    public class PagingQueryModel
+    public interface IPagingQueryModel
     {
-        public int Page { get; set; } = 1;
-        public int Size { get; set; } = 10;
+        int Page { get; set; }
+        int Size { get; set; }
     }
 }
