@@ -54,11 +54,11 @@ namespace SmartHead.Essentials.Abstractions.Behaviour
 
         public new static Result<T> Fail() => new Result<T>(false);
 
-        public new static Result Fail(Exception exception) => new Result<T>(exception);
+        public new static Result<T> Fail(Exception exception) => new Result<T>(exception);
 
-        public new static Result Fail(Failure failure) => new Result<T>(failure);
+        public new static Result<T> Fail(Failure failure) => new Result<T>(failure);
 
-        public new static Result Fail(Failure[] failures) => new Result<T>(failures);
+        public new static Result<T> Fail(Failure[] failures) => new Result<T>(failures);
 
         protected Result(T payload) : base(true)
         {
